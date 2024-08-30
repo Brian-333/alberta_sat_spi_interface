@@ -9,3 +9,4 @@ edition = "2021"
 tcp_interface = { path = "../tcp_interface" }
 message_structure = { path = "../message_structure" }
 spidev = "0.6.0"
+gpio-cdev = "0.4"
