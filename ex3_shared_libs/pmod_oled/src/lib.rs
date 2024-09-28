@@ -41,7 +41,7 @@ impl PmodOled {
         let reset_handle = lines[1].request(LineRequestFlags::OUTPUT, 0, "reset-output")?;
         let vbatc_handle = lines[2].request(LineRequestFlags::OUTPUT, 0, "vbatc-output")?;
         let vddc_handle = lines[3].request(LineRequestFlags::OUTPUT, 0, "vddc-output")?;
-        let vcc_handle = lines[5].request(LineRequestFlags::OUTPUT, 0, "vcc-output")?;
+        let vcc_handle = lines[4].request(LineRequestFlags::OUTPUT, 0, "vcc-output")?;
 
         // 1. Power on vdd
         vddc_handle.set_value(1)?;
