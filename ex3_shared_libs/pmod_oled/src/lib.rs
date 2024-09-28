@@ -35,7 +35,7 @@ impl PmodOled {
         let line_numbers: &[u32] = &[self.dc, self.reset, self.vbatc, self.vddc, self.vcc];
         let lines = chip.get_lines(line_numbers)?;
 
-        let mut spi_interface = SpiInterface::new("/dev/spidev1.0").unwrap();
+        let mut spi_interface = SpiInterface::new("/dev/spidev2.0").unwrap();
 
         let dc_handle = lines[0].request(LineRequestFlags::OUTPUT, 0, "dc-output")?;
         let reset_handle = lines[1].request(LineRequestFlags::OUTPUT, 0, "reset-output")?;
@@ -46,7 +46,7 @@ impl PmodOled {
         // 1. Power on vdd
         vddc_handle.set_value(1)?;
 
-        let n = SpiInterface::send(&mut spi_interface, &[0xAE]);
+        // let n = SpiInterface::send(&mut spi_interface, &[0xAE]);
         // 2. After VDD become stable, set RES# pin LOW (logic low) for at least 3us (t1) (4) and then HIGH (logic high).
         reset_handle.set_value(0)?;
         std::thread::sleep(std::time::Duration::from_micros(3));
