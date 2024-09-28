@@ -16,6 +16,7 @@ members = [
     "ex3_shared_libs/ipc_interface",
     "ex3_shared_libs/tcp_interface",
     "ex3_shared_libs/spi_interface",
+    "ex3_shared_libs/pmod_oled",
     "ex3_shared_libs/message_structure",
     "ex3_shared_libs/interfaces/ipc",
 ]
