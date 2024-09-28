@@ -6,7 +6,7 @@ References:
     https://www.adafruit.com/datasheets/SSD1306.pdf                     - datasheet (commands included)
 */
 use gpio_cdev::{Chip, LineRequestFlags, EventRequestFlags, EventType};
-use spi_interface::{SpiInterface,};
+use spi_interface::SpiInterface;
 use tcp_interface::Interface;
 
 pub struct PmodOled {
