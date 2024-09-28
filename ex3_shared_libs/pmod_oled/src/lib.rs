@@ -6,8 +6,8 @@ References:
     https://www.adafruit.com/datasheets/SSD1306.pdf                     - datasheet (commands included)
 */
 use gpio_cdev::{Chip, LineRequestFlags, EventRequestFlags, EventType};
-use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306Async};
-use spi_interface::SpiInterface;
+use spi_interface::{SpiInterface,};
+use tcp_interface::Interface;
 
 pub struct PmodOled {
     dc: u32,
@@ -45,6 +45,8 @@ impl PmodOled {
 
         // 1. Power on vdd
         vddc_handle.set_value(1)?;
+
+        let n = SpiInterface::send(&mut spi_interface, &[0xAE]);
         // 2. After VDD become stable, set RES# pin LOW (logic low) for at least 3us (t1) (4) and then HIGH (logic high).
         reset_handle.set_value(0)?;
         std::thread::sleep(std::time::Duration::from_micros(3));
@@ -53,9 +55,7 @@ impl PmodOled {
         std::thread::sleep(std::time::Duration::from_micros(3));
         vcc_handle.set_value(1)?;
         // 4. After VCC become stable, send command AFh for display ON. SEG/COM will be ON after 100ms (tAF).
-        let cs_line = lines[0].request(LineRequestFlags::OUTPUT, 0, "cs-output")?;
-
-        spi_interface.send(&[0xAF])?;
+        let n = SpiInterface::send(&mut spi_interface, &[0xAF]);
 
         Ok(())
     }
@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn turn_on() {
-        let mut pmod_oled = PmodOled::new(1, 2, 3, 4, 1, 2, 3, 4, 5, 6);
+        let mut pmod_oled = PmodOled::new(1, 2, 3, 4, 5, 6);
         pmod_oled.turn_on("/dev/spidev1.0").unwrap();
     }
 

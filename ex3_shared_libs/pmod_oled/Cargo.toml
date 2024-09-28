@@ -9,3 +9,4 @@ edition = "2021"
 gpio-cdev = "0.6.0"
 ssd1306 = "0.9.0"
 spi_interface = { path = "../spi_interface" }
+tcp_interface = { path = "../tcp_interface" }
