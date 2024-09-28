@@ -56,7 +56,9 @@ impl PmodOled {
         vcc_handle.set_value(1)?;
         // 4. After VCC become stable, send command AFh for display ON. SEG/COM will be ON after 100ms (tAF).
         let n = SpiInterface::send(&mut spi_interface, &[0xAF]);
-        print!("n: {}", n.unwrap());
+        print!("Started \n");
+        std::thread::sleep(std::time::Duration::from_millis(10000));
+        print!("n: {}\n", n.unwrap());
 
         Ok(())
     }
