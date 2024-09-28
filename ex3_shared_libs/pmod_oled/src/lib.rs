@@ -31,7 +31,7 @@ impl PmodOled {
     }
 
     pub fn turn_on(&mut self, path: &str) -> Result<(), gpio_cdev::Error> {
-        let mut chip = Chip::new(path)?;
+        let mut chip = Chip::new(path).unwrap();
         let line_numbers: &[u32] = &[self.dc, self.reset, self.vbatc, self.vddc, self.vcc];
         let lines = chip.get_lines(line_numbers)?;
 
