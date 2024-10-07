@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn turn_on() {
-        let mut pmod_oled = PmodOled::new(1, 2, 3, 4, 5, 6);
+        let mut pmod_oled = PmodOled::new(0, 1, 2, 3, 4, 5);
         pmod_oled.turn_on("/dev/gpiochip0").unwrap();
     }
 
