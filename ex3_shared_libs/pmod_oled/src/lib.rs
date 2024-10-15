@@ -45,6 +45,11 @@ impl PmodOled {
 
         // 1. Power on vdd
         vddc_handle.set_value(1)?;
+        // send display on command 
+        let _ = SpiInterface::send(&mut spi_interface, &[0xAE]);
+        print!("Display OFF \n");
+        let _ = SpiInterface::send(&mut spi_interface, &[0x0F]);
+        print!("Mode Set \n");
 
         // let n = SpiInterface::send(&mut spi_interface, &[0xAE]);
         // 2. After VDD become stable, set RES# pin LOW (logic low) for at least 3us (t1) (4) and then HIGH (logic high).
