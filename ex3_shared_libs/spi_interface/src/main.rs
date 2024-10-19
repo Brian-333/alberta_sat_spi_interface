@@ -1,35 +1,44 @@
-use std::env;
-use spi_interface::SpiInterface;
-use tcp_interface::Interface;
-pub const BUFFER_SIZE: usize = 1024;
+extern crate spidev;
+use std::io;
+use std::io::prelude::*;
+use spidev::{Spidev, SpidevOptions, SpidevTransfer, SpiModeFlags};
 
-fn test_spi_write() {
-    let mut spi_interface = SpiInterface::new("/dev/spidev2.0").unwrap();
-    if let Ok(n) = SpiInterface::send(&mut spi_interface, &[48, 48, 48, 48, 48]) {
-        println!("Sent {} bytes", n);
-    } else {
-        // couldn't send bytes
-    }
+fn create_spi() -> io::Result<Spidev> {
+    let mut spi = Spidev::open("/dev/spidev2.0")?;
+    let options = SpidevOptions::new()
+         .bits_per_word(8)
+         .max_speed_hz(20_000)
+         .mode(SpiModeFlags::SPI_MODE_0)
+         .build();
+    spi.configure(&options)?;
+    Ok(spi)
 }
 
-fn test_spi_read() {
-    let mut spi_interface = SpiInterface::new("/dev/spidev2.0").unwrap();
-    let mut buffer = [0u8; BUFFER_SIZE];
-    loop {
-        if let Ok(n) = SpiInterface::read(&mut spi_interface, &mut buffer) {
-            println!("got dem bytes: {:?}", buffer);
-            if n > 0 {
-                break;
-            } else {
-                continue;
-            }
-        } else {
-            println!("No bytes to read");
-        }
+/// perform half duplex operations using Read and Write traits
+fn half_duplex(spi: &mut Spidev) -> io::Result<()> {
+    let mut rx_buf = [0_u8; 10];
+    spi.write(&[0x01, 0x02, 0x03])?;
+    spi.read(&mut rx_buf)?;
+    println!("{:?}", rx_buf);
+    Ok(())
+}
+
+/// Perform full duplex operations using Ioctl
+fn full_duplex(spi: &mut Spidev) -> io::Result<()> {
+    // "write" transfers are also reads at the same time with
+    // the read having the same length as the write
+    let tx_buf = [0x01, 0x02, 0x03];
+    let mut rx_buf = [0; 3];
+    {
+        let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
+        spi.transfer(&mut transfer)?;
     }
+    println!("{:?}", rx_buf);
+    Ok(())
 }
 
 fn main() {
-    test_spi_write();
-    test_spi_read();
+    let mut spi = create_spi().unwrap();
+    println!("{:?}", half_duplex(&mut spi).unwrap());
+    println!("{:?}", full_duplex(&mut spi).unwrap());
 }
