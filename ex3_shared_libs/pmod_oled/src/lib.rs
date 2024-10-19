@@ -14,25 +14,21 @@ pub struct PmodOled {
     reset: u32,
     vbatc: u32,
     vddc: u32,
-    ground: u32,
-    vcc: u32,
 }
 
 impl PmodOled {
-    pub fn new(dc: u32, reset: u32, vbatc: u32, vddc: u32, ground: u32, vcc: u32) -> PmodOled {
+    pub fn new(dc: u32, reset: u32, vbatc: u32, vddc: u32) -> PmodOled {
         PmodOled {
             dc,
             reset,
             vbatc,
             vddc,
-            ground,
-            vcc,
         }
     }
 
     pub fn turn_on(&mut self, path: &str) -> Result<(), gpio_cdev::Error> {
         let mut chip = Chip::new(path).unwrap();
-        let line_numbers: &[u32] = &[self.dc, self.reset, self.vbatc, self.vddc, self.vcc];
+        let line_numbers: &[u32] = &[self.dc, self.reset, self.vbatc, self.vddc];
         let lines = chip.get_lines(line_numbers)?;
 
         let mut spi_interface = SpiInterface::new("/dev/spidev2.0").unwrap();
@@ -41,7 +37,6 @@ impl PmodOled {
         let reset_handle = lines[1].request(LineRequestFlags::OUTPUT, 0, "reset-output")?;
         let vbatc_handle = lines[2].request(LineRequestFlags::OUTPUT, 0, "vbatc-output")?;
         let vddc_handle = lines[3].request(LineRequestFlags::OUTPUT, 0, "vddc-output")?;
-        let vcc_handle = lines[4].request(LineRequestFlags::OUTPUT, 0, "vcc-output")?;
 
         std::thread::sleep(std::time::Duration::from_millis(10000));
 
@@ -52,18 +47,20 @@ impl PmodOled {
         print!("Display OFF \n");
         let _ = SpiInterface::send(&mut spi_interface, &[0x0F]);
         print!("Mode Set \n");
+        vbatc_handle.set_value(1)?;
 
         // let n = SpiInterface::send(&mut spi_interface, &[0xAE]);
         // 2. After VDD become stable, set RES# pin LOW (logic low) for at least 3us (t1) (4) and then HIGH (logic high).
-        reset_handle.set_value(0)?;
-        std::thread::sleep(std::time::Duration::from_micros(3));
-        reset_handle.set_value(1)?;
+        // reset_handle.set_value(0)?;
+        // std::thread::sleep(std::time::Duration::from_micros(3));
+        // reset_handle.set_value(1)?;
         // 3. After set RES# pin LOW (logic low), wait for at least 3us (t2). Then Power ON VCC. (1)
-        std::thread::sleep(std::time::Duration::from_micros(3));
-        vcc_handle.set_value(1)?;
+        // std::thread::sleep(std::time::Duration::from_micros(3));
         // 4. After VCC become stable, send command AFh for display ON. SEG/COM will be ON after 100ms (tAF).
+
+        std::thread::sleep(std::time::Duration::from_millis(100));
         let n = SpiInterface::send(&mut spi_interface, &[0xAF]);
-        print!("Started \n");
+        print!("Display on \n");
         std::thread::sleep(std::time::Duration::from_millis(10000));
         print!("n: {}\n", n.unwrap());
 
@@ -78,7 +75,7 @@ mod tests {
 
     #[test]
     fn turn_on() {
-        let mut pmod_oled = PmodOled::new(0, 1, 2, 3, 4, 5);
+        let mut pmod_oled = PmodOled::new(0, 1, 2, 3);
         pmod_oled.turn_on("/dev/gpiochip0").unwrap();
     }
 
