@@ -43,6 +43,8 @@ impl PmodOled {
         let vddc_handle = lines[3].request(LineRequestFlags::OUTPUT, 0, "vddc-output")?;
         let vcc_handle = lines[4].request(LineRequestFlags::OUTPUT, 0, "vcc-output")?;
 
+        std::thread::sleep(std::time::Duration::from_millis(10000));
+
         // 1. Power on vdd
         vddc_handle.set_value(1)?;
         // send display on command 
