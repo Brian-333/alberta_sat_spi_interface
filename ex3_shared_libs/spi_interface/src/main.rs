@@ -19,7 +19,7 @@ fn half_duplex(spi: &mut Spidev) -> io::Result<()> {
     let mut rx_buf = [0_u8; 10];
     spi.write(&[0x01, 0x02, 0x03])?;
     spi.read(&mut rx_buf)?;
-    println!("{:?}", rx_buf);
+    println!("buffer read {:?}", rx_buf);
     Ok(())
 }
 
@@ -33,7 +33,7 @@ fn full_duplex(spi: &mut Spidev) -> io::Result<()> {
         let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
         spi.transfer(&mut transfer)?;
     }
-    println!("{:?}", rx_buf);
+    println!("buffer read {:?}", rx_buf);
     Ok(())
 }
 
